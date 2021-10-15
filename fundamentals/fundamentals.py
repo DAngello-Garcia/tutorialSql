@@ -8,6 +8,7 @@ CREATE, ALTER, DROP, TRUNCATE
 
 Data Manipulation Language
  SELECT, INSERT, UPDATE, DELETE
+  
 Data Control Language
  GRANT, REVOKE
 
