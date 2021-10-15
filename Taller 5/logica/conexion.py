@@ -5,7 +5,7 @@ import os
 dbUser = os.environ.get('DB_USER')
 dbPass = os.environ.get('DB_PASS')
 dbHost = 'localhost'
-dbName = 'Empresa_Teleco'
+dbName = 'prueba'
 
 
 cnx = mysql.connector.connect(user=dbUser, password=dbPass, host=dbHost)
