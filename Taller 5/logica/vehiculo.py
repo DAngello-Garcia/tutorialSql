@@ -1,17 +1,16 @@
-import conexion
+import logica.conexion as conexion
 
 class Vehiculo:
-    conexion.checkDB()
+    
     cnx = conexion.getConnection()
     cursor = conexion.getCursor()
 
-    def __init__(self, Codigo, Placa, Tipo, Marca, Modelo, Descripcion, Fecha_inicio, Estado):
+    def __init__(self, Codigo, Placa, Tipo, Marca, Modelo, Fecha_inicio, Estado):
         self.Codigo = Codigo
         self.Placa = Placa
         self.Tipo = Tipo
         self.Marca = Marca
         self.Modelo = Modelo
-        self.Descripcion = Descripcion
         self.Fecha_inicio = Fecha_inicio
         self.Estado = Estado
 
@@ -23,7 +22,6 @@ class Vehiculo:
             Tipo VARCHAR(50),
             Marca VARCHAR(100),
             Modelo VARCHAR(50),
-            Descripcion VARCHAR(150),
             Fecha_inicio DATE,
             Estado BOOLEAN,
             PRIMARY KEY (Id_Vehiculo)
@@ -33,8 +31,9 @@ class Vehiculo:
         cursor.close()
         cnx.close()
     
-    def createEntities(**kwargs):
+    def createEntities(self, **kwargs):
         try:
+            conexion.checkDB()
             query = "INSERT INTO Vehiculo ("
             i = 0
             for key in kwargs.keys():
@@ -54,10 +53,11 @@ class Vehiculo:
             cnx.commit()
             cursor.close()
             cnx.close()
-        except mysql.connector.Error as err:
-            print(err)
+        except:
+            pass
+        print("Vehículo creado.")
 
-    def readEntities(id):
+    def readEntities(self, id):
         try:
             query = "SELECT * FROM Vehiculo WHERE Codigo = {};".format(id)
             cursor.execute(query)
@@ -65,10 +65,11 @@ class Vehiculo:
             for i in result:
                 print(i)
             cursor.close()
-        except mysql.connector.Error as err:
-            print(err)
+            cnx.close()
+        except:
+            pass
 
-    def updateTable(self, **kwargs):
+    def updateTable(self, id, **kwargs):
         try:
             query = "UPDATE Vehiculo"
             i = 0
@@ -79,20 +80,32 @@ class Vehiculo:
                     query += ", "
                 query += "{}='{}'".format(key, value)
                 i += 1
-            query += " WHERE Codigo = {};".format(self.Codigo)
+            query += " WHERE Codigo = {};".format(id)
             cursor.execute(query)
             cnx.commit()
             cursor.close()
             cnx.close()
-        except mysql.connector.Error as err:
-            print(err)
+        except:
+            pass
 
-    def deleteEntities(id):
+    def deleteEntities(self, id):
         try:
-            query = '''DELETE FROM Vehiculo WHERE (Codigo = {});'''.format(id)
+            query = "DELETE FROM Vehiculo WHERE (Codigo = {});".format(id)
             cursor.execute(query)
             cnx.commit()
             cursor.close()
             cnx.close()
-        except mysql.connector.Error as err:
-            print(err)
+        except:
+            pass
+
+    def verificarExistencia(self, id):
+        try:
+            conexion.checkDB()
+            query = "SELECT * FROM Vehiculo WHERE Codigo = {};".format(id)
+            cursor.execute(query)
+            cursor.close()
+            cnx.close()
+            return True
+        except:
+            print("El vehículo no existe. Error: ")
+            return False
