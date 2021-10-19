@@ -7,20 +7,24 @@ dbPass = os.environ.get('DB_PASS')
 dbHost = 'localhost'
 dbName = 'prueba'
 
-
-cnx = mysql.connector.connect(user=dbUser, password=dbPass, host=dbHost)
-cursor = cnx.cursor()
-
 def createDB():
     try:
+        cnx = mysql.connector.connect(host=dbHost, user=dbUser, password=dbPass)
+        cursor = cnx.cursor()
         cursor.execute("CREATE DATABASE {}".format(dbName))
+        cursor.close()
+        cnx.close()
     except mysql.connector.Error as err:
         print("Failed creating database: {}".format(err))
         exit(1)
     
 def checkDB():
     try:
+        cnx = mysql.connector.connect(host=dbHost, user=dbUser, password=dbPass, database=dbName)
+        cursor = cnx.cursor()
         cursor.execute("USE {}".format(dbName))
+        cursor.close()
+        cnx.close()
     except mysql.connector.Error as err:
         print("Database {} does not exists".format(dbName))
         if err.errno == errorcode.ER_BAD_DB_ERROR:
@@ -30,13 +34,5 @@ def checkDB():
             print(err)
             exit(1)
 
-def getCursor():
-    return cursor
-
 def getConnection():
-    return cnx
-
-checkDB()
-cursor.execute("SHOW TABLES")
-for x in cursor:
-  print(x)
+    return mysql.connector.connect(host=dbHost, user=dbUser, password=dbPass, database=dbName)

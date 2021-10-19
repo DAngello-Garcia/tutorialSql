@@ -1,9 +1,8 @@
 import logica.conexion as conexion
+import mysql.connector
+from mysql.connector import errorcode
 
 class Vehiculo:
-    
-    cnx = conexion.getConnection()
-    cursor = conexion.getCursor()
 
     def __init__(self, Codigo, Placa, Tipo, Marca, Modelo, Fecha_inicio, Estado):
         self.Codigo = Codigo
@@ -14,51 +13,45 @@ class Vehiculo:
         self.Fecha_inicio = Fecha_inicio
         self.Estado = Estado
 
-    def createTable():
-        query = '''CREATE TABLE Vehiculo (
-            Id_Vehiculo INT AUTO_INCREMENT,
-            Codigo VARCHAR(50) NOT NULL,
-            Placa CHAR(10) NOT NULL,
-            Tipo VARCHAR(50),
-            Marca VARCHAR(100),
-            Modelo VARCHAR(50),
-            Fecha_inicio DATE,
-            Estado BOOLEAN,
-            PRIMARY KEY (Id_Vehiculo)
-        );'''
-        cursor.execute(query)
-        cnx.commit()
-        cursor.close()
-        cnx.close()
+    def createTable(self):
+        cnx = conexion.getConnection()
+        cursor = cnx.cursor(buffered=True)
+        cursor.execute("CALL sys.table_exists('prueba', 'Vehiculo', @exists);")
+        verificar = cursor.execute("SELECT @exists;")
+        if verificar == '':
+            query = '''CREATE TABLE Vehiculo (
+                Codigo VARCHAR(50) NOT NULL,
+                Placa VARCHAR(10),
+                Tipo VARCHAR(50),
+                Marca VARCHAR(100),
+                Modelo VARCHAR(50),
+                Fecha_inicio DATE,
+                Estado BOOLEAN,
+                PRIMARY KEY (Codigo)
+            );'''
+            cursor.execute(query)
+            cursor.close()
+            cnx.close()
+        else:
+            cursor.close()
+            cnx.close()
     
-    def createEntities(self, **kwargs):
+    def createEntities(self, *args):
         try:
-            conexion.checkDB()
-            query = "INSERT INTO Vehiculo ("
-            i = 0
-            for key in kwargs.keys():
-                if i != len(kwargs) - 1:
-                    i += 1
-                    query += "{}, ".format(key)
-                else:
-                    query += "{}) VALUES (".format(key)
-                    i = 0
-                    for value in kwargs.values():
-                        if i != len(kwargs) - 1:
-                            i += 1
-                            query += "{}, ".format(value)
-                        else:
-                            query += "{});".format(value)
+            cnx = conexion.getConnection()
+            cursor = cnx.cursor(buffered=True)
+            query = "INSERT INTO Vehiculo (Codigo, Placa, Tipo, Marca, Modelo, Fecha_inicio, Estado) VALUES {};".format(args)
             cursor.execute(query)
             cnx.commit()
             cursor.close()
             cnx.close()
-        except:
-            pass
-        print("Vehículo creado.")
+        except mysql.connector.Error as err:
+            print("Error: ",err)
 
     def readEntities(self, id):
         try:
+            cnx = conexion.getConnection()
+            cursor = cnx.cursor(buffered=True)
             query = "SELECT * FROM Vehiculo WHERE Codigo = {};".format(id)
             cursor.execute(query)
             result = cursor.fetchall()
@@ -66,11 +59,13 @@ class Vehiculo:
                 print(i)
             cursor.close()
             cnx.close()
-        except:
-            pass
+        except mysql.connector.Error as err:
+            print("Error: ",err)
 
     def updateTable(self, id, **kwargs):
         try:
+            cnx = conexion.getConnection()
+            cursor = cnx.cursor(buffered=True)
             query = "UPDATE Vehiculo"
             i = 0
             for key, value in kwargs.items():
@@ -85,27 +80,32 @@ class Vehiculo:
             cnx.commit()
             cursor.close()
             cnx.close()
-        except:
-            pass
+        except mysql.connector.Error as err:
+            print("Error: ",err)
 
     def deleteEntities(self, id):
         try:
+            cnx = conexion.getConnection()
+            cursor = cnx.cursor(buffered=True)
             query = "DELETE FROM Vehiculo WHERE (Codigo = {});".format(id)
             cursor.execute(query)
             cnx.commit()
             cursor.close()
             cnx.close()
-        except:
-            pass
+        except mysql.connector.Error as err:
+            print("Error: ",err)
 
-    def verificarExistencia(self, id):
+    @staticmethod
+    def verificarExistencia(id):
         try:
+            cnx = conexion.getConnection()
+            cursor = cnx.cursor(buffered=True)
             conexion.checkDB()
             query = "SELECT * FROM Vehiculo WHERE Codigo = {};".format(id)
             cursor.execute(query)
             cursor.close()
             cnx.close()
             return True
-        except:
-            print("El vehículo no existe. Error: ")
+        except mysql.connector.Error as err:
+            print("Error: ",err)
             return False

@@ -1,10 +1,10 @@
 import logica.conexion as conexion
+import mysql.connector
+from mysql.connector import errorcode
 
 class Conductor:
-    cnx = conexion.getConnection()
-    cursor = conexion.getCursor()
 
-    def __init(self, id, nombres, apellidos, celu, fecha, turno, cod_vehi):
+    def __init__(self, id, nombres, apellidos, celu, fecha, turno, cod_vehi):
         self.Identificacion = id
         self.Nombres = nombres
         self.Apellidos = apellidos
@@ -12,63 +12,63 @@ class Conductor:
         self.Fecha_Nacimiento = fecha
         self.Turno = turno
         self.Codigo_Vehiculo = cod_vehi
+    
+    def getIdentificacion(self):
+        return self.Identificacion
 
-    def createTable():
-        query = '''CREATE TABLE Conductor (
-            Id_Conductor INT AUTO_INCREMENT,
-            Identificacion BIGINT NOT NULL,
-            Nombres VARCHAR(150),
-            Apellidos VARCHAR(150),
-            Celular CHAR(15),
-            Fecha_Nacimiento DATE,
-            Turno CHAR(15),
-            Codigo_Vehiculo VARCHAR(50),
-            PRIMARY KEY (Id_Conductor),
-            FOREIGN KEY (Codigo_Vehiculo) REFERENCES Vehiculo(Id_Vehiculo)
-        );'''
-        cursor.execute(query)
-        cnx.commit()
-        cursor.close()
-        cnx.close()
+    def createTable(self):
+        cnx = conexion.getConnection()
+        cursor = cnx.cursor(buffered=True)
+        cursor.execute("CALL sys.table_exists('prueba', 'Conductor', @exists);")
+        verificar = cursor.execute("SELECT @exists;")
+        if verificar == '':
+            query = '''CREATE TABLE Conductor (
+                Identificacion BIGINT NOT NULL,
+                Nombres VARCHAR(150),
+                Apellidos VARCHAR(150),
+                Celular VARCHAR(15),
+                Fecha_Nacimiento DATE,
+                Turno VARCHAR(15),
+                Codigo_Vehiculo VARCHAR(50),
+                PRIMARY KEY (Identificacion),
+                FOREIGN KEY (Codigo_Vehiculo) REFERENCES Vehiculo(Codigo)
+            );'''
+            cursor.execute(query)
+            cursor.close()
+            cnx.close()
+        else:
+            cursor.close()
+            cnx.close()
 
-    def createEntities(self, **kwargs):
+    def createEntities(self, *args):
         try:
-            query = "INSERT INTO Conductor ("
-            i = 0
-            for key in kwargs.keys():
-                if i != len(kwargs) - 1:
-                    i += 1
-                    query += "{}, ".format(key)
-                else:
-                    query += "{}) VALUES (".format(key)
-                    i = 0
-                    for value in kwargs.values():
-                        if i != len(kwargs) - 1:
-                            i += 1
-                            query += "{}, ".format(value)
-                        else:
-                            query += "{});".format(value)
+            cnx = conexion.getConnection()
+            cursor = cnx.cursor(buffered=True)
+            query = "INSERT INTO Conductor (Identificacion, Nombres, Apellidos, Celular, Fecha_Nacimiento, Turno, Codigo_Vehiculo) VALUES {};".format(args)
             cursor.execute(query)
             cnx.commit()
             cursor.close()
             cnx.close()
-        except:
-            pass
-        print("Conductor creado.")
+        except mysql.connector.Error as err:
+            print("Error: ",err)
 
     def readEntities(self, id):
         try:
+            cnx = conexion.getConnection()
+            cursor = cnx.cursor(buffered=True)
             query = "SELECT * FROM Conductor WHERE Identificacion = {};".format(id)
             cursor.execute(query)
             result = cursor.fetchall()
             for i in result:
                 print(i)
             cursor.close()
-        except:
-            pass
+        except mysql.connector.Error as err:
+            print("Error: ",err)
 
     def updateTable(self, id, **kwargs):
         try:
+            cnx = conexion.getConnection()
+            cursor = cnx.cursor(buffered=True)
             query = "UPDATE Conductor"
             i = 0
             for key, value in kwargs.items():
@@ -83,15 +83,17 @@ class Conductor:
             cnx.commit()
             cursor.close()
             cnx.close()
-        except:
-            pass
+        except mysql.connector.Error as err:
+            print("Error: ",err)
 
     def deleteEntities(self, id):
         try:
+            cnx = conexion.getConnection()
+            cursor = cnx.cursor(buffered=True)
             query = '''DELETE FROM Conductor WHERE (Identificacion = {});'''.format(id)
             cursor.execute(query)
             cnx.commit()
             cursor.close()
             cnx.close()
-        except:
-            pass
+        except mysql.connector.Error as err:
+            print("Error: ",err)
