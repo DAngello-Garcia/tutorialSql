@@ -1,6 +1,7 @@
 import logica.conexion as conexion
 import mysql.connector
 from mysql.connector import errorcode
+from logica.vehiculo import Vehiculo
 
 
 class Conductor:
@@ -19,14 +20,19 @@ class Conductor:
 
     def createEntities(self, *args):
         try:
-            cnx = conexion.getConnection()
-            cursor = cnx.cursor(buffered=True)
-            query = "INSERT INTO Conductor (Identificacion, Nombres, Apellidos, Celular, Fecha_Nacimiento, Turno, Codigo_Vehiculo) VALUES {};".format(
-                args)
-            cursor.execute(query)
-            cnx.commit()
-            cursor.close()
-            cnx.close()
+            v = args[6]
+            if Vehiculo.verificarExistencia(v):
+                print("hola")
+                cnx = conexion.getConnection()
+                cursor = cnx.cursor(buffered=True)
+                query = "INSERT INTO Conductor (Identificacion, Nombres, Apellidos, Celular, Fecha_Nacimiento, Turno, Codigo_Vehiculo) VALUES {};".format(
+                    args)
+                cursor.execute(query)
+                cnx.commit()
+                cursor.close()
+                cnx.close()
+            else:
+                print("Chao")
         except mysql.connector.Error as err:
             print("Error: ", err)
 
