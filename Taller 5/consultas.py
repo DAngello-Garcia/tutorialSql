@@ -53,7 +53,7 @@ def modificarVehiculo(ObjVehiculo):
 
 
 checkDB()
-nuevoVehiculo = ingresarVehiculo()
+#nuevoVehiculo = ingresarVehiculo()
 nuevoConductor = ingresarConductor()
 id = nuevoConductor.getIdentificacion()
 nuevoConductor.readEntities(id)

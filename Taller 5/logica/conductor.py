@@ -39,7 +39,13 @@ class Conductor:
             cursor.execute(query)
             result = cursor.fetchall()
             for i in result:
-                print(i)
+                print("Identificación: ", i[0])
+                print("Nombres: ", i[1])
+                print("Apellidos: ", i[2])
+                print("Celular: ", i[3])
+                print("Fecha de nacimiento: ", i[4])
+                print("Turno: ", i[5])
+                print("Código vehículo asignado: ", i[6])
             cursor.close()
         except mysql.connector.Error as err:
             print("Error: ", err)
